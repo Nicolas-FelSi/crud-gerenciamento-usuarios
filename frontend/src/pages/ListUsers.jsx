@@ -1,30 +1,29 @@
 import { useState } from "react";
 import { useEffect } from "react";
 import { Link } from "react-router"
+import Header from "../components/Header";
+import getUsers from "../api/getUsers";
+import UserDataCell from "../components/UserDataCell"
 
 function ListUsers() {
   const [users, setUsers] = useState([]);
 
-  async function getUsers() {
-    const response = await fetch("http://localhost:3000/", {
-      method: "get",
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
+  async function handleGetUsers() {
+    const usersList = await getUsers();
+    setUsers(usersList.users);
+  }
 
-    setUsers(await response.json());
+  async function handleRemoveUser(id) {
+    setUsers(users.filter(user => user.id != id));
   }
 
   useEffect(() => {
-    getUsers();
-  })
+    handleGetUsers();
+  }, [])
 
   return (
     <div>
-      <header className="bg-dark text-white p-3">
-        <h1 className="container-s fs-2 m-0">CRUD - Gerenciamento de usuários</h1>
-      </header>
+      <Header/>
       <main className="container mt-5">
         <div className="card">
           <div className="card-header d-flex justify-content-between align-items-center">
@@ -32,32 +31,29 @@ function ListUsers() {
             <Link to="/cadastrar" className="btn btn-primary">Adicionar usuário</Link>
           </div>
           <div className="p-3">
-            <table className="table table-bordered table-hover">
-              <thead>
-                <tr>
-                  <th scope="col">ID</th>
-                  <th scope="col">Nome</th>
-                  <th scope="col">E-mail</th>
-                  <th scope="col">Data de Nascimento</th>
-                  <th scope="col">Ações</th>
-                </tr>
-              </thead>
-              <tbody>
-                { users.length != 0 && users.map(user => (
-                  <tr key={user.id}>
-                    <th scope="row">{user.id}</th>
-                    <td>{user.nome}</td>
-                    <td>{user.email}</td>
-                    <td>{user.data_nascimento}</td>
-                    <td className="d-flex gap-2">
-                      <Link className="btn btn-secondary">Visualizar</Link>
-                      <Link className="btn btn-warning">Editar</Link>
-                      <button className="btn btn-danger">Excluir</button>
-                    </td>
+            { users.length != 0 
+              ? 
+              <table className="table table-bordered table-hover">
+                <thead>
+                  <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">E-mail</th>
+                    <th scope="col">Data de Nascimento</th>
+                    <th scope="col">Ações</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {
+                    users.map(user => (
+                      <UserDataCell key={user.id} user={user} handleRemoveUser={handleRemoveUser}/>
+                    ))
+                  }
+                </tbody>
+              </table>
+              :
+              <p className="text-center m-0">Nenhum usuário cadastrado</p>
+            }
           </div>
         </div>
       </main>

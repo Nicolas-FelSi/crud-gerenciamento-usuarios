@@ -1,8 +1,8 @@
 import db from "../config/database.js"
 
 async function getAll() {
-  const rows = await db.query("SELECT id, nome, email, data_nascimento FROM usuarios");
-  return rows[0];
+  const [rows] = await db.query("SELECT id, nome, email, data_nascimento FROM usuarios");
+  return rows;
 }
 
 async function getById(id) {
@@ -10,12 +10,12 @@ async function getById(id) {
   return rows;
 }
 
-async function create(data) {
+async function create(nome, email, data_nascimento, senha) {
   const rows = await db.query("INSERT INTO usuarios (nome, email, data_nascimento, senha) VALUES (?, ?, ?, ?)", [
-    data.nome,
-    data.email,
-    data.data_nascimento,
-    data.senha
+    nome,
+    email,
+    data_nascimento,
+    senha
   ])
 
   return rows;
@@ -33,8 +33,7 @@ async function update(id, data) {
 }
 
 async function remove(id) {
-  const rows = await db.query("DELETE FROM usuarios WHERE id = ?", [id]);
-  return rows;
+  await db.query("DELETE FROM usuarios WHERE id = ?", [id]);
 }
 
 export { getAll, getById, create, update, remove };
